@@ -37,10 +37,17 @@ for /f "usebackq delims=" %%A in ("tasks.txt") do (
     set "URL=%%A"
     if not "!URL!"=="" (
         if not "!URL:~0,1!"=="#" (
-            echo 正在下载：!URL!
-            REM 调用 N_m3u8DL-RE.exe 下载，--save-dir 参数指定输出目录，
-            REM 如有其他参数可在此添加，例如 --save-name 自定义文件名
-            "%DOWNLOAD_TOOL%" "!URL!" --save-dir "%DOWNLOAD_DIR%"
+            REM 提示用户输入文件名，如果没有输入则使用默认的文件名
+            set /p "CUSTOM_NAME=请输入文件名（默认：%DOWNLOAD_DIR%\文件名）："
+            
+            REM 如果没有输入文件名，使用默认的文件名（通过 N_m3u8DL-RE.exe 自动生成）
+            if "!CUSTOM_NAME!"=="" (
+                set "CUSTOM_NAME=default_filename"
+            )
+
+            echo 正在下载：!URL! 到 !CUSTOM_NAME!
+            REM 调用 N_m3u8DL-RE.exe 下载，--save-dir 参数指定输出目录，--save-name 参数指定文件名
+            "%DOWNLOAD_TOOL%" "!URL!" --save-dir "%DOWNLOAD_DIR%" --save-name "!CUSTOM_NAME!"
             
             REM 判断返回值，若非 0 则记录错误
             if errorlevel 1 (
